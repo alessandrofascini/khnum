@@ -1,31 +1,5 @@
 import { describe, test } from "vitest";
-import { randomToken, toCamelCase, toKebabCase, toRenderMethodName } from "../src/utils";
-
-describe("toCamelCase", () => {
-  test("short vs long kebab-case input", async ({ bench }) => {
-    await bench.compare(
-      bench("short: is-active", () => {
-        toCamelCase("is-active");
-      }),
-      bench("long: many-segment attribute name", () => {
-        toCamelCase("this-is-a-fairly-long-attribute-name-with-many-segments");
-      }),
-    );
-  });
-});
-
-describe("toKebabCase", () => {
-  test("short vs long camelCase input", async ({ bench }) => {
-    await bench.compare(
-      bench("short: isActive", () => {
-        toKebabCase("isActive");
-      }),
-      bench("long: many-segment property name", () => {
-        toKebabCase("thisIsAFairlyLongPropertyNameWithManySegments");
-      }),
-    );
-  });
-});
+import { randomToken, toRenderMethodName } from "../src/utils";
 
 describe("toRenderMethodName", () => {
   test("short property name", async ({ bench }) => {

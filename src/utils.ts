@@ -1,17 +1,3 @@
-export function toCamelCase(value: string): string {
-  return value
-    .replace(/^\w|[A-Z]|\b\w/g, (char, index) => (index === 0 ? char.toLowerCase() : char.toUpperCase()))
-    .replace(/\s+/g, "")
-    .replace(/-/g, "");
-}
-
-export function toKebabCase(value: string): string {
-  return value
-    .replace(/([a-z])([A-Z])/g, "$1-$2")
-    .replace(/[\s_]+/g, "-")
-    .toLowerCase();
-}
-
 export function toRenderMethodName(propName: string): string {
   return `render${propName.charAt(0).toUpperCase()}${propName.slice(1)}`;
 }

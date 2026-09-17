@@ -1,5 +1,6 @@
 import { Clay } from "./clay";
-import { randomToken, toCamelCase, toKebabCase, toRenderMethodName } from "./utils";
+import { AttributeName } from "./internal/attribute-name";
+import { randomToken, toRenderMethodName } from "./utils";
 
 /** Something that must be fired (registered with `customElements`) before it can be used. */
 export interface Fireable {
@@ -28,8 +29,10 @@ export function Shape<TProps extends object = object>(
   attributeNames: readonly string[] = [],
   dependencies: readonly Fireable[] = [],
 ): Vessel<TProps> {
-  const propNames = attributeNames.map(toCamelCase);
-  const htmlNames = propNames.map(toKebabCase);
+  const attrs = attributeNames.map((name) => new AttributeName(name));
+  const propNames = attrs.map((attr) => attr.propName);
+  const htmlNames = attrs.map((attr) => attr.attributeName);
+  const propNameByAttrName = new Map(attrs.map((attr) => [attr.attributeName, attr.propName]));
   const idByInstance = new WeakMap<Clay, string>();
 
   class Base extends Clay {
@@ -44,7 +47,10 @@ export function Shape<TProps extends object = object>(
     }
 
     override attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
-      (this as unknown as Record<string, unknown>)[toCamelCase(name)] = newValue;
+      const propName = propNameByAttrName.get(name);
+      if (propName) {
+        (this as unknown as Record<string, unknown>)[propName] = newValue;
+      }
     }
 
     static get tagName(): string {

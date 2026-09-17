@@ -1,5 +1,5 @@
+import { AttributeName } from "./internal/attribute-name";
 import { Shape, type AttributeMap, type Fireable, type Vessel } from "./shape";
-import { toCamelCase } from "./utils";
 
 type AnyVessel = Vessel<AttributeMap>;
 
@@ -45,7 +45,7 @@ export class Ennead {
           ...components.map((ChildComponent) => {
             const child = new ChildComponent();
             for (const attr of ChildComponent.attributeNames) {
-              const value = (this as unknown as Record<string, string | null>)[toCamelCase(attr)];
+              const value = (this as unknown as Record<string, string | null>)[new AttributeName(attr).propName];
               if (value != null) child.setAttribute(attr, value);
             }
             return child;
