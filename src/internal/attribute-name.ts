@@ -45,8 +45,16 @@ function isWordChar(code: number): boolean {
 // Element.setAttribute's actual validation rule (not the stricter classic XML Name
 // production): non-empty, and no ASCII whitespace, NUL, "/", ">", or "=" anywhere.
 // See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute.
-function isInvalidAttrChar(code: number): boolean {
-  return isWhitespace(code) || code === 0x00 || code === 0x2f || code === 0x3e || code === 0x3d;
+//
+// Fast path first: real attribute names are almost always plain printable ASCII, so that
+// case is resolved in at most 3 comparisons instead of running the full isWhitespace scan
+// (up to ~12 comparisons) on every character. The slow path only runs for the rare cases:
+// control characters, ASCII space, and non-ASCII unicode whitespace.
+function isValidAttrChar(code: number): boolean {
+  if (code > 0x20 && code < 0x7f) {
+    return code !== 0x2f && code !== 0x3e && code !== 0x3d;
+  }
+  return code !== 0x00 && !isWhitespace(code);
 }
 
 /**
@@ -66,8 +74,8 @@ export class AttributeName {
     // attributeName is a hyphen-before-lowercase encoding of the exact same "new segment"
     // decisions that drive propName's capitalization, so both are built together in one
     // pass over raw instead of validating once and converting twice.
-    let propName = "";
-    let attributeName = "";
+    this.propName = "";
+    this.attributeName = "";
     let started = false; // have we passed the leading run of non-alphanumeric characters?
     let prevWasWord = false; // for propName: capitalize the next word char after a separator
     let prevWasLower = false; // for attributeName: hyphenate before an uppercase propName char
@@ -76,7 +84,7 @@ export class AttributeName {
       const ch = raw[i];
       const code = raw.charCodeAt(i);
 
-      if (isInvalidAttrChar(code)) {
+      if (!isValidAttrChar(code)) {
         throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
       }
 
@@ -89,7 +97,7 @@ export class AttributeName {
       }
 
       let outChar: string;
-      if (propName.length === 0) {
+      if (this.propName.length === 0) {
         outChar = ch.toLowerCase();
       } else if (isUpper(code)) {
         outChar = ch;
@@ -101,16 +109,13 @@ export class AttributeName {
 
       const outIsUpper = outChar >= "A" && outChar <= "Z";
       if (outIsUpper && prevWasLower) {
-        attributeName += "-";
+        this.attributeName += "-";
       }
-      attributeName += outChar.toLowerCase();
-      propName += outChar;
+      this.attributeName += outChar.toLowerCase();
+      this.propName += outChar;
 
       prevWasWord = isWordChar(code);
       prevWasLower = outChar >= "a" && outChar <= "z";
     }
-
-    this.propName = propName;
-    this.attributeName = attributeName;
   }
 }
