@@ -1,0 +1,31 @@
+{
+  "name": "khnum",
+  "version": "0.1.0",
+  "description": "A lightweight library for creating web components easily.",
+  "type": "module",
+  "main": "./dist/khnum.umd.cjs",
+  "module": "./dist/khnum.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/khnum.js",
+      "require": "./dist/khnum.umd.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "typecheck": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "author": "Alessandro Fascini",
+  "devDependencies": {
+    "typescript": "^5.6.2",
+    "vite": "^8.3.0",
+    "vite-plugin-dts": "^4.2.3"
+  }
+}
