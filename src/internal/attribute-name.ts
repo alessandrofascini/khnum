@@ -46,15 +46,23 @@ function isWordChar(code: number): boolean {
 // production): non-empty, and no ASCII whitespace, NUL, "/", ">", or "=" anywhere.
 // See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute.
 //
+// Precomputed once: 1 for every printable ASCII code point (0x21-0x7e) except the 3
+// forbidden ones ("/", "=", ">"), which stay 0. Turns "is this one of these 3 specific
+// characters" into a single indexed read instead of three separate comparisons.
+const PRINTABLE_ASCII_VALID = new Uint8Array(0x7f).fill(1, 0x21);
+PRINTABLE_ASCII_VALID[0x2f] = 0;
+PRINTABLE_ASCII_VALID[0x3d] = 0;
+PRINTABLE_ASCII_VALID[0x3e] = 0;
+
 // Fast path first: a letter, digit, or underscore is always valid, no further checks
-// needed -- this is the overwhelming majority of real attribute-name characters.
-// Otherwise fall back to the printable-ASCII-minus-punctuation check, and finally the full
-// isWhitespace scan (up to ~12 comparisons) for the rare remaining cases: control
+// needed -- this is the overwhelming majority of real attribute-name characters. Otherwise
+// plain printable ASCII is a single indexed lookup, and everything else falls back to the
+// full isWhitespace scan (up to ~12 comparisons) for the rare remaining cases: control
 // characters, ASCII space, and non-ASCII unicode whitespace.
 function isValidAttrChar(code: number): boolean {
   if (isWordChar(code)) return true;
   if (code > 0x20 && code < 0x7f) {
-    return code !== 0x2f && code !== 0x3e && code !== 0x3d;
+    return Boolean(PRINTABLE_ASCII_VALID[code]);
   }
   return code !== 0x00 && !isWhitespace(code);
 }
