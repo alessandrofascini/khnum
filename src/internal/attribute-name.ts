@@ -49,69 +49,6 @@ function isInvalidAttrChar(code: number): boolean {
   return isWhitespace(code) || code === 0x00 || code === 0x2f || code === 0x3e || code === 0x3d;
 }
 
-interface ParsedAttributeName {
-  propName: string;
-  attributeName: string;
-}
-
-/**
- * Validates `raw` and builds `propName`/`attributeName` together in a single pass:
- * `attributeName` is a hyphen-before-lowercase encoding of the exact same "new segment"
- * decisions that drive `propName`'s capitalization, so both can be produced from the same
- * per-character boundary check instead of validating once and converting twice.
- */
-function parseAttributeName(raw: string): ParsedAttributeName {
-  if (raw.length === 0) {
-    throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
-  }
-
-  let propName = "";
-  let attributeName = "";
-  let started = false; // have we passed the leading run of non-alphanumeric characters?
-  let prevWasWord = false; // for propName: capitalize the next word char after a separator
-  let prevWasLower = false; // for attributeName: hyphenate before an uppercase propName char
-
-  for (let i = 0; i < raw.length; i++) {
-    const ch = raw[i];
-    const code = raw.charCodeAt(i);
-
-    if (isInvalidAttrChar(code)) {
-      throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
-    }
-
-    if (!started) {
-      if (!isAlnum(code)) continue; // still skipping the leading separator run
-      started = true;
-    } else if (ch === "-") {
-      prevWasWord = false;
-      continue;
-    }
-
-    let outChar: string;
-    if (propName.length === 0) {
-      outChar = ch.toLowerCase();
-    } else if (isUpper(code)) {
-      outChar = ch;
-    } else if (isWordChar(code) && !prevWasWord) {
-      outChar = ch.toUpperCase();
-    } else {
-      outChar = ch;
-    }
-
-    const outIsUpper = outChar >= "A" && outChar <= "Z";
-    if (outIsUpper && prevWasLower) {
-      attributeName += "-";
-    }
-    attributeName += outChar.toLowerCase();
-    propName += outChar;
-
-    prevWasWord = isWordChar(code);
-    prevWasLower = outChar >= "a" && outChar <= "z";
-  }
-
-  return { propName, attributeName };
-}
-
 /**
  * A validated HTML attribute name, and the single source of truth for converting
  * between an attribute's kebab-case form and its JS property's camelCase form.
@@ -122,8 +59,58 @@ export class AttributeName {
   readonly attributeName: string;
 
   constructor(raw: string) {
-    const parsed = parseAttributeName(raw);
-    this.propName = parsed.propName;
-    this.attributeName = parsed.attributeName;
+    if (raw.length === 0) {
+      throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
+    }
+
+    // attributeName is a hyphen-before-lowercase encoding of the exact same "new segment"
+    // decisions that drive propName's capitalization, so both are built together in one
+    // pass over raw instead of validating once and converting twice.
+    let propName = "";
+    let attributeName = "";
+    let started = false; // have we passed the leading run of non-alphanumeric characters?
+    let prevWasWord = false; // for propName: capitalize the next word char after a separator
+    let prevWasLower = false; // for attributeName: hyphenate before an uppercase propName char
+
+    for (let i = 0; i < raw.length; i++) {
+      const ch = raw[i];
+      const code = raw.charCodeAt(i);
+
+      if (isInvalidAttrChar(code)) {
+        throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
+      }
+
+      if (!started) {
+        if (!isAlnum(code)) continue; // still skipping the leading separator run
+        started = true;
+      } else if (ch === "-") {
+        prevWasWord = false;
+        continue;
+      }
+
+      let outChar: string;
+      if (propName.length === 0) {
+        outChar = ch.toLowerCase();
+      } else if (isUpper(code)) {
+        outChar = ch;
+      } else if (isWordChar(code) && !prevWasWord) {
+        outChar = ch.toUpperCase();
+      } else {
+        outChar = ch;
+      }
+
+      const outIsUpper = outChar >= "A" && outChar <= "Z";
+      if (outIsUpper && prevWasLower) {
+        attributeName += "-";
+      }
+      attributeName += outChar.toLowerCase();
+      propName += outChar;
+
+      prevWasWord = isWordChar(code);
+      prevWasLower = outChar >= "a" && outChar <= "z";
+    }
+
+    this.propName = propName;
+    this.attributeName = attributeName;
   }
 }
