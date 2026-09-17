@@ -62,13 +62,21 @@ describe("AttributeName.propName / .attributeName", () => {
     );
   });
 
-  it("attributeName never contains an uppercase ASCII letter, whitespace, or underscore", () => {
+  it("attributeName never contains an uppercase ASCII letter or whitespace", () => {
     fc.assert(
       fc.property(validAttributeName, (raw) => {
-        expect(new AttributeName(raw).attributeName).not.toMatch(/[A-Z\s_]/);
+        expect(new AttributeName(raw).attributeName).not.toMatch(/[A-Z\s]/);
       }),
       { numRuns: 500 },
     );
+  });
+
+  it("treats underscore as a plain word character in both propName and attributeName", () => {
+    // propName and attributeName are now built from the same per-character "new segment"
+    // decision, so underscore is consistent between them: neither treats it as a
+    // separator, both just pass it through literally.
+    expect(new AttributeName("foo_bar").propName).toBe("foo_bar");
+    expect(new AttributeName("foo_bar").attributeName).toBe("foo_bar");
   });
 
   // Restricted to inputs with at least one alphanumeric character: an attribute name made
@@ -100,11 +108,6 @@ describe("AttributeName.propName / .attributeName", () => {
     // to produce "Active". Fixed by stripping leading non-alphanumerics before converting,
     // which is what makes the idempotency property above hold unconditionally now.
     expect(new AttributeName("-active").propName).toBe("active");
-  });
-
-  it("does not treat underscores as word separators (documented current behavior)", () => {
-    // "_" is a \w character, so no word-boundary forms around it.
-    expect(new AttributeName("foo_bar").propName).toBe("foo_bar");
   });
 
   it("only lowercases the first letter of a leading acronym, not the whole run (documented current behavior)", () => {

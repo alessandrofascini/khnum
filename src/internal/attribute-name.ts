@@ -42,86 +42,74 @@ function isWordChar(code: number): boolean {
   return isAlnum(code) || code === 0x5f; // + "_"
 }
 
-/**
- * Element.setAttribute's actual validation rule (not the stricter classic XML Name
- * production): non-empty, and no ASCII whitespace, NUL, "/", ">", or "=" anywhere.
- * See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute.
- */
-function isValidAttributeName(value: string): boolean {
-  if (value.length === 0) return false;
-  for (let i = 0; i < value.length; i++) {
-    const code = value.charCodeAt(i);
-    if (isWhitespace(code) || code === 0x00 || code === 0x2f || code === 0x3e || code === 0x3d) {
-      return false;
-    }
-  }
-  return true;
+// Element.setAttribute's actual validation rule (not the stricter classic XML Name
+// production): non-empty, and no ASCII whitespace, NUL, "/", ">", or "=" anywhere.
+// See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute.
+function isInvalidAttrChar(code: number): boolean {
+  return isWhitespace(code) || code === 0x00 || code === 0x2f || code === 0x3e || code === 0x3d;
 }
 
-function toPropName(value: string): string {
-  // Skip a leading run of non-alphanumeric characters (e.g. "-", "_", ":") first, so the
-  // first real character always lands at the start of the output and is treated as the
-  // start of the identifier (lowercased) rather than as a word-boundary match (uppercased).
-  let start = 0;
-  while (start < value.length && !isAlnum(value.charCodeAt(start))) {
-    start++;
+interface ParsedAttributeName {
+  propName: string;
+  attributeName: string;
+}
+
+/**
+ * Validates `raw` and builds `propName`/`attributeName` together in a single pass:
+ * `attributeName` is a hyphen-before-lowercase encoding of the exact same "new segment"
+ * decisions that drive `propName`'s capitalization, so both can be produced from the same
+ * per-character boundary check instead of validating once and converting twice.
+ */
+function parseAttributeName(raw: string): ParsedAttributeName {
+  if (raw.length === 0) {
+    throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
   }
 
-  let result = "";
-  let prevWasWord = false;
+  let propName = "";
+  let attributeName = "";
+  let started = false; // have we passed the leading run of non-alphanumeric characters?
+  let prevWasWord = false; // for propName: capitalize the next word char after a separator
+  let prevWasLower = false; // for attributeName: hyphenate before an uppercase propName char
 
-  for (let i = start; i < value.length; i++) {
-    const ch = value[i];
-    const code = value.charCodeAt(i);
+  for (let i = 0; i < raw.length; i++) {
+    const ch = raw[i];
+    const code = raw.charCodeAt(i);
 
-    if (isWhitespace(code) || ch === "-") {
+    if (isInvalidAttrChar(code)) {
+      throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
+    }
+
+    if (!started) {
+      if (!isAlnum(code)) continue; // still skipping the leading separator run
+      started = true;
+    } else if (ch === "-") {
       prevWasWord = false;
       continue;
     }
 
-    if (i === start) {
-      result += ch.toLowerCase();
+    let outChar: string;
+    if (propName.length === 0) {
+      outChar = ch.toLowerCase();
     } else if (isUpper(code)) {
-      result += ch;
+      outChar = ch;
     } else if (isWordChar(code) && !prevWasWord) {
-      result += ch.toUpperCase();
+      outChar = ch.toUpperCase();
     } else {
-      result += ch;
+      outChar = ch;
     }
+
+    const outIsUpper = outChar >= "A" && outChar <= "Z";
+    if (outIsUpper && prevWasLower) {
+      attributeName += "-";
+    }
+    attributeName += outChar.toLowerCase();
+    propName += outChar;
 
     prevWasWord = isWordChar(code);
+    prevWasLower = outChar >= "a" && outChar <= "z";
   }
 
-  return result;
-}
-
-function toAttrName(value: string): string {
-  let result = "";
-  let prevWasLower = false;
-  let inSeparatorRun = false;
-
-  for (let i = 0; i < value.length; i++) {
-    const ch = value[i];
-    const code = value.charCodeAt(i);
-
-    if (isWhitespace(code) || ch === "_") {
-      if (!inSeparatorRun) {
-        result += "-";
-        inSeparatorRun = true;
-      }
-      prevWasLower = false;
-      continue;
-    }
-    inSeparatorRun = false;
-
-    if (isUpper(code) && prevWasLower) {
-      result += "-";
-    }
-    result += ch;
-    prevWasLower = isLower(code);
-  }
-
-  return result.toLowerCase();
+  return { propName, attributeName };
 }
 
 /**
@@ -134,10 +122,8 @@ export class AttributeName {
   readonly attributeName: string;
 
   constructor(raw: string) {
-    if (!isValidAttributeName(raw)) {
-      throw new KhnumError("AttributeName", `"${raw}" is not a valid attribute name`);
-    }
-    this.propName = toPropName(raw);
-    this.attributeName = toAttrName(this.propName);
+    const parsed = parseAttributeName(raw);
+    this.propName = parsed.propName;
+    this.attributeName = parsed.attributeName;
   }
 }
