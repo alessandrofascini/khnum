@@ -1,13 +1,13 @@
-export class WebComponentsFactoryError extends Error {
+export class KhnumError extends Error {
   constructor(
     public readonly functionName: string,
     message: string,
   ) {
     super(message);
-    this.name = "WebComponentsFactoryError";
+    this.name = "KhnumError";
   }
 
   override toString(): string {
-    return `WebComponentsFactory.${this.functionName}: ${this.message}`;
+    return `Khnum.${this.functionName}: ${this.message}`;
   }
 }

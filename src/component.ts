@@ -1,5 +1,5 @@
 import { RawComponent } from "./raw-component";
-import { randomId, renderMethodName, toCamelCase, toKebabCase } from "./utils";
+import { randomToken, toCamelCase, toKebabCase, toRenderMethodName } from "./utils";
 
 export interface ComponentDependency {
   define(): void;
@@ -10,9 +10,9 @@ export type AttributeMap = Record<string, string | null>;
 
 export type ComponentClass<TProps extends object = object> = ComponentDependency & {
   new (): RawComponent & { readonly componentId: string } & { [K in keyof TProps]: TProps[K] };
-  readonly TagName: string;
+  readonly tagName: string;
   readonly observedAttributes: string[];
-  readonly AttributeName: string[];
+  readonly attributeNames: string[];
 };
 
 /**
@@ -32,11 +32,12 @@ export function Component<TProps extends object = object>(
 
   class Base extends RawComponent {
     get componentId(): string {
-      let id = idByInstance.get(this);
-      if (id === undefined) {
-        id = `${tagName}@${randomId()}`;
-        idByInstance.set(this, id);
+      const instance = idByInstance.get(this);
+      if (instance) {
+        return instance;
       }
+      const id = `${tagName}@${randomToken()}`;
+      idByInstance.set(this, id);
       return id;
     }
 
@@ -44,7 +45,7 @@ export function Component<TProps extends object = object>(
       (this as unknown as Record<string, unknown>)[toCamelCase(name)] = newValue;
     }
 
-    static get TagName(): string {
+    static get tagName(): string {
       return tagName;
     }
 
@@ -52,7 +53,7 @@ export function Component<TProps extends object = object>(
       return htmlNames;
     }
 
-    static get AttributeName(): string[] {
+    static get attributeNames(): string[] {
       return htmlNames;
     }
 
@@ -65,7 +66,7 @@ export function Component<TProps extends object = object>(
 
   propNames.forEach((propName, index) => {
     const attrName = htmlNames[index];
-    const renderMethod = renderMethodName(propName);
+    const renderMethod = toRenderMethodName(propName);
     const backingField = `_${propName}`;
 
     const descriptor: PropertyDescriptor = {

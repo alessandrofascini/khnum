@@ -1,4 +1,4 @@
-import { WebComponentsFactoryError } from "./errors";
+import { KhnumError } from "./errors";
 
 type Cleanup = () => void;
 
@@ -6,7 +6,7 @@ export class RawComponent extends HTMLElement {
   #cleanups: Cleanup[] = [];
 
   render(): void {
-    throw new WebComponentsFactoryError("RawComponent.render", "is not implemented");
+    throw new KhnumError("RawComponent.render", "is not implemented");
   }
 
   attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {}

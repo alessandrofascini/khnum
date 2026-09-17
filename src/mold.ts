@@ -1,4 +1,4 @@
-import { WebComponentsFactoryError } from "./errors";
+import { KhnumError } from "./errors";
 
 export type MoldStyle = Partial<Record<keyof CSSStyleDeclaration, string | undefined>>;
 export type MoldAttributes = Record<string, unknown> & { style?: MoldStyle };
@@ -32,7 +32,7 @@ export function mold<T extends HTMLElement = HTMLElement>(
     } else if (typeof propsOrChild === "object") {
       applyAttributes(el, propsOrChild as MoldAttributes);
     } else {
-      throw new WebComponentsFactoryError(
+      throw new KhnumError(
         "mold",
         `Invalid type of props: "${typeof propsOrChild}". Type can only be Node | Object | string.`,
       );

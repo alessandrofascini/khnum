@@ -14,26 +14,26 @@ export class MultiComponentBuilder {
     this.#tagName = tagName;
   }
 
-  AttributeName(...names: string[]): this {
+  attributeNames(...names: string[]): this {
     for (const name of names) this.#attributeNames.add(name);
     return this;
   }
 
-  Dependency(...dependencies: ComponentDependency[]): this {
+  dependencies(...dependencies: ComponentDependency[]): this {
     for (const dep of dependencies) this.#dependencies.add(dep);
     return this;
   }
 
-  Use(...components: AnyComponentClass[]): this {
+  use(...components: AnyComponentClass[]): this {
     for (const component of components) {
       this.#components.add(component);
-      for (const attr of component.AttributeName) this.#attributeNames.add(attr);
+      for (const attr of component.attributeNames) this.#attributeNames.add(attr);
       this.#dependencies.add(component);
     }
     return this;
   }
 
-  Build(): AnyComponentClass {
+  build(): AnyComponentClass {
     const components = Array.from(this.#components);
     const attributeNames = Array.from(this.#attributeNames);
     const dependencies = Array.from(this.#dependencies);
@@ -44,7 +44,7 @@ export class MultiComponentBuilder {
         this.replaceChildren(
           ...components.map((ChildComponent) => {
             const child = new ChildComponent();
-            for (const attr of ChildComponent.AttributeName) {
+            for (const attr of ChildComponent.attributeNames) {
               const value = (this as unknown as Record<string, string | null>)[toCamelCase(attr)];
               if (value != null) child.setAttribute(attr, value);
             }
