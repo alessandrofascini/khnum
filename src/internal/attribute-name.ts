@@ -46,11 +46,13 @@ function isWordChar(code: number): boolean {
 // production): non-empty, and no ASCII whitespace, NUL, "/", ">", or "=" anywhere.
 // See https://developer.mozilla.org/en-US/docs/Web/API/Element/setAttribute.
 //
-// Fast path first: real attribute names are almost always plain printable ASCII, so that
-// case is resolved in at most 3 comparisons instead of running the full isWhitespace scan
-// (up to ~12 comparisons) on every character. The slow path only runs for the rare cases:
-// control characters, ASCII space, and non-ASCII unicode whitespace.
+// Fast path first: a letter, digit, or underscore is always valid, no further checks
+// needed -- this is the overwhelming majority of real attribute-name characters.
+// Otherwise fall back to the printable-ASCII-minus-punctuation check, and finally the full
+// isWhitespace scan (up to ~12 comparisons) for the rare remaining cases: control
+// characters, ASCII space, and non-ASCII unicode whitespace.
 function isValidAttrChar(code: number): boolean {
+  if (isWordChar(code)) return true;
   if (code > 0x20 && code < 0x7f) {
     return code !== 0x2f && code !== 0x3e && code !== 0x3d;
   }
