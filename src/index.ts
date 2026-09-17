@@ -1,7 +1,7 @@
 export { mold } from "./mold";
 export type { MoldAttributes, MoldChild, MoldStyle } from "./mold";
 
-export { KhnumError as WebComponentsFactoryError } from "./errors";
+export { KhnumError } from "./errors";
 
 export { RawComponent } from "./raw-component";
 
