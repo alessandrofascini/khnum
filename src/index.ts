@@ -3,12 +3,12 @@ export type { MoldAttributes, MoldChild, MoldStyle } from "./mold";
 
 export { KhnumError } from "./errors";
 
-export { RawComponent } from "./raw-component";
+export { Clay } from "./clay";
 
-export { Component } from "./component";
-export type { AttributeMap, ComponentClass, ComponentDependency } from "./component";
+export { Shape } from "./shape";
+export type { AttributeMap, Fireable, Vessel } from "./shape";
 
-export { MultiComponentBuilder } from "./multi-component-builder";
+export { Ennead } from "./ennead";
 
 export { EventDecorator, ChangedEvent, DtoEvent } from "./events";
 export type { ChangedEventInstance, DtoEventInstance, NamedEventCtor } from "./events";

@@ -2,11 +2,12 @@ import { KhnumError } from "./errors";
 
 type Cleanup = () => void;
 
-export class RawComponent extends HTMLElement {
+/** The raw, unformed base: a plain custom element with lifecycle hooks and leak-safe listeners. */
+export class Clay extends HTMLElement {
   #cleanups: Cleanup[] = [];
 
   render(): void {
-    throw new KhnumError("RawComponent.render", "is not implemented");
+    throw new KhnumError("Clay.render", "is not implemented");
   }
 
   attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {}

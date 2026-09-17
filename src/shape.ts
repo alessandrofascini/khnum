@@ -1,36 +1,38 @@
-import { RawComponent } from "./raw-component";
+import { Clay } from "./clay";
 import { randomToken, toCamelCase, toKebabCase, toRenderMethodName } from "./utils";
 
-export interface ComponentDependency {
-  define(): void;
+/** Something that must be fired (registered with `customElements`) before it can be used. */
+export interface Fireable {
+  fire(): void;
 }
 
 /** Maps camelCase property names to their (string | null) attribute-backed value. */
 export type AttributeMap = Record<string, string | null>;
 
-export type ComponentClass<TProps extends object = object> = ComponentDependency & {
-  new (): RawComponent & { readonly componentId: string } & { [K in keyof TProps]: TProps[K] };
+export type Vessel<TProps extends object = object> = Fireable & {
+  new (): Clay & { readonly componentId: string } & { [K in keyof TProps]: TProps[K] };
   readonly tagName: string;
   readonly observedAttributes: string[];
   readonly attributeNames: string[];
 };
 
 /**
- * Builds a `RawComponent` subclass with attribute-backed reactive properties.
- * Setting a property (or its attribute) calls `render<PropName>()` when connected,
- * instead of forcing a full `render()`. Pass `TProps` (a type with no index
- * signature, e.g. `{ label: string | null }`) to type the resulting properties.
+ * Shapes `Clay` into a `Vessel`: a custom element class with attribute-backed
+ * reactive properties. Setting a property (or its attribute) calls
+ * `render<PropName>()` when connected, instead of forcing a full `render()`.
+ * Pass `TProps` (a type with no index signature, e.g. `{ label: string | null }`)
+ * to type the resulting properties.
  */
-export function Component<TProps extends object = object>(
+export function Shape<TProps extends object = object>(
   tagName: string,
   attributeNames: readonly string[] = [],
-  dependencies: readonly ComponentDependency[] = [],
-): ComponentClass<TProps> {
+  dependencies: readonly Fireable[] = [],
+): Vessel<TProps> {
   const propNames = attributeNames.map(toCamelCase);
   const htmlNames = propNames.map(toKebabCase);
-  const idByInstance = new WeakMap<RawComponent, string>();
+  const idByInstance = new WeakMap<Clay, string>();
 
-  class Base extends RawComponent {
+  class Base extends Clay {
     get componentId(): string {
       const instance = idByInstance.get(this);
       if (instance) {
@@ -57,9 +59,9 @@ export function Component<TProps extends object = object>(
       return htmlNames;
     }
 
-    static define(): void {
+    static fire(): void {
       if (customElements.get(tagName)) return;
-      for (const dep of dependencies) dep.define();
+      for (const dep of dependencies) dep.fire();
       customElements.define(tagName, this);
     }
   }
@@ -72,10 +74,10 @@ export function Component<TProps extends object = object>(
     const descriptor: PropertyDescriptor = {
       configurable: true,
       enumerable: true,
-      get(this: RawComponent): string | null {
+      get(this: Clay): string | null {
         return (this as unknown as Record<string, string | null>)[backingField] ?? null;
       },
-      set(this: RawComponent, value: string | null) {
+      set(this: Clay, value: string | null) {
         (this as unknown as Record<string, string | null>)[backingField] = value;
         if (this.isConnected) {
           (this as unknown as Record<string, (() => void) | undefined>)[renderMethod]?.();
@@ -89,5 +91,5 @@ export function Component<TProps extends object = object>(
     }
   });
 
-  return Base as unknown as ComponentClass<TProps>;
+  return Base as unknown as Vessel<TProps>;
 }
