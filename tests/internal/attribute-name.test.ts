@@ -79,6 +79,14 @@ describe("AttributeName.propName / .attributeName", () => {
     expect(new AttributeName("foo_bar").attributeName).toBe("foo_bar");
   });
 
+  it("preserves a leading underscore, unlike a leading hyphen", () => {
+    // The leading-separator skip uses isWordChar, not isAlnum, so it's consistent with
+    // underscore's treatment everywhere else: never a separator to strip. A leading
+    // hyphen is a real separator and still gets stripped.
+    expect(new AttributeName("_foo").propName).toBe("_foo");
+    expect(new AttributeName("-foo").propName).toBe("foo");
+  });
+
   // Restricted to inputs with at least one alphanumeric character: an attribute name made
   // entirely of separators (e.g. "---") is syntactically valid but has no meaningful
   // propName (it strips to ""), and "" is itself not a valid AttributeName -- there's no

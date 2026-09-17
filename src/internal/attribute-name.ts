@@ -89,7 +89,7 @@ export class AttributeName {
       }
 
       if (!started) {
-        if (!isAlnum(code)) continue; // still skipping the leading separator run
+        if (!isWordChar(code)) continue; // still skipping the leading separator run
         started = true;
       } else if (ch === "-") {
         prevWasWord = false;
