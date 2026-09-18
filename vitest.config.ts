@@ -8,5 +8,11 @@ export default defineConfig({
     benchmark: {
       include: ["tests/**/*.bench.ts"],
     },
+    coverage: {
+      provider: "v8",
+      include: ["src/**/*.ts"],
+      exclude: ["src/index.ts", "src/events/index.ts"],
+      reporter: ["text", "html", "lcov"],
+    },
   },
 });

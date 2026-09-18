@@ -29,6 +29,27 @@ describe("AttributeName validation", () => {
   it.each([" a", "a a", "a\ta", "a/a", "a>a", "a=a", "a\0a"])("rejects %j", (raw) => {
     expect(() => new AttributeName(raw)).toThrow(KhnumError);
   });
+
+  // isWhitespace's ECMAScript `\s` code points are checked one by one rather than via
+  // regex; fast-check's fuzzing rarely lands on these rare unicode code points, so they're
+  // pinned explicitly to actually exercise each comparison.
+  it.each([
+    "a\na", // \n
+    "a\va", // \v
+    "a\fa", // \f
+    "a\ra", // \r
+    "a a", // no-break space
+    "a a", // ogham space mark
+    "a a", // en quad (covers the 0x2000-0x200a range check)
+    "a a", // line separator
+    "a a", // paragraph separator
+    "a a", // narrow no-break space
+    "a a", // medium mathematical space
+    "a　a", // ideographic space
+    "a﻿a", // zero width no-break space / BOM
+  ])("rejects %j (unicode whitespace/line terminator)", (raw) => {
+    expect(() => new AttributeName(raw)).toThrow(KhnumError);
+  });
 });
 
 describe("AttributeName.propName / .attributeName", () => {
