@@ -42,27 +42,36 @@ export class Ennead {
     // [attrName, propName] pairs per component, precomputed once here instead of
     // re-parsing each attribute name (via `new AttributeName(attr)`) on every render.
     const componentAttrPairs = components.map((ChildComponent) =>
-      ChildComponent.attributeNames.map((attr): [string, string] => [attr, new AttributeName(attr).propName]),
+      ChildComponent.attributeNames.map((attr): [string, string] => [
+        attr,
+        new AttributeName(attr).propName,
+      ]),
     );
 
     class Container extends Shape(tagName, attributeNames, dependencies) {
       render(): void {
-        this.replaceChildren(
-          ...components.map((ChildComponent, index) => {
-            const child = new ChildComponent();
-            for (const [attr, propName] of componentAttrPairs[index]) {
-              const value = (this as unknown as Record<string, string | null>)[propName];
-              if (value != null) child.setAttribute(attr, value);
-            }
-            return child;
-          }),
-        );
+        const children = components.map((ChildComponent, index) => {
+          const child = new ChildComponent();
+          for (const [attr, propName] of componentAttrPairs[index]) {
+            const value = (this as unknown as Record<string, string | null>)[propName];
+            if (value != null) child.setAttribute(attr, value);
+          }
+          return child;
+        });
+        this.replaceChildren.apply(this, children);
       }
 
-      attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+      attributeChangedCallback(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null,
+      ): void {
         for (const node of this.childNodes) {
-          (node as ChildNode & { attributeChangedCallback?: (n: string, o: string | null, v: string | null) => void })
-            .attributeChangedCallback?.(name, oldValue, newValue);
+          (
+            node as ChildNode & {
+              attributeChangedCallback?: (n: string, o: string | null, v: string | null) => void;
+            }
+          ).attributeChangedCallback?.(name, oldValue, newValue);
         }
       }
 

@@ -28,18 +28,18 @@ export function Shape<TProps extends object = object>(
   tagName: string,
   attributeNames: readonly string[] = [],
   dependencies: readonly Fireable[] = [],
-): Vessel<TProps> {  
+): Vessel<TProps> {
   const propNames = new Array(attributeNames.length);
   const htmlNames = new Array(attributeNames.length);
   const propNameByAttrName = new Map<string, string>();
- 
+
   attributeNames.forEach((raw, index) => {
     const attr = new AttributeName(raw);
     propNames[index] = attr.propName;
     htmlNames[index] = attr.attributeName;
     propNameByAttrName.set(attr.attributeName, attr.propName);
   });
-  
+
   class Base extends Clay {
     #componentId: string | undefined;
 
@@ -47,7 +47,11 @@ export function Shape<TProps extends object = object>(
       return (this.#componentId ??= `${tagName}@${makeComponentId()}`);
     }
 
-    override attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
+    override attributeChangedCallback(
+      name: string,
+      _oldValue: string | null,
+      newValue: string | null,
+    ): void {
       const propName = propNameByAttrName.get(name);
       if (propName) {
         (this as unknown as Record<string, unknown>)[propName] = newValue;

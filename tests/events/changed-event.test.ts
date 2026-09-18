@@ -5,14 +5,19 @@ import { ChangedEvent } from "../../src/events/changed-event";
 describe("ChangedEvent", () => {
   it("carries the given newVal/oldVal and inherits the fixed event name", () => {
     fc.assert(
-      fc.property(fc.string({ minLength: 1 }), fc.anything(), fc.anything(), (eventName, newVal, oldVal) => {
-        const Changed = ChangedEvent(eventName);
-        const event = new Changed(newVal, oldVal);
-        expect(event.type).toBe(eventName);
-        expect(Changed.eventName).toBe(eventName);
-        expect(event.newVal).toBe(newVal);
-        expect(event.oldVal).toBe(oldVal);
-      }),
+      fc.property(
+        fc.string({ minLength: 1 }),
+        fc.anything(),
+        fc.anything(),
+        (eventName, newVal, oldVal) => {
+          const Changed = ChangedEvent(eventName);
+          const event = new Changed(newVal, oldVal);
+          expect(event.type).toBe(eventName);
+          expect(Changed.eventName).toBe(eventName);
+          expect(event.newVal).toBe(newVal);
+          expect(event.oldVal).toBe(oldVal);
+        },
+      ),
       { numRuns: 200 },
     );
   });

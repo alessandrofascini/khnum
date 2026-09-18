@@ -7,8 +7,9 @@ export type MoldChild = Node | string | null | undefined;
 type MoldTarget = string | (new () => HTMLElement);
 
 function applyAttributes(el: HTMLElement, props: MoldAttributes): void {
+  const styleStr = "style";
   for (const name in props) {
-    if (name === "style") continue;
+    if (name === styleStr) continue;
     el.setAttribute(name, String(props[name]));
   }
   const style = props.style;

@@ -5,7 +5,10 @@ import type { ChangedEventInstance, NamedEventCtor } from "./types";
 export function ChangedEvent<TValue = unknown>(
   eventName: string,
   defaultInit: EventInit = {},
-): NamedEventCtor<ChangedEventInstance<TValue>, [newVal: TValue, oldVal: TValue, init?: EventInit]> {
+): NamedEventCtor<
+  ChangedEventInstance<TValue>,
+  [newVal: TValue, oldVal: TValue, init?: EventInit]
+> {
   const Base = EventDecorator(eventName, defaultInit);
 
   class ChangedEvent extends Base implements ChangedEventInstance<TValue> {

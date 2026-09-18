@@ -1,13 +1,13 @@
-export interface NamedEventCtor<TInstance extends Event, TArgs extends unknown[]> {
-  new (...args: TArgs): TInstance;
+export interface NamedEventCtor<E extends Event, A extends unknown[]> {
+  new (...args: A): E;
   readonly eventName: string;
 }
 
-export interface ChangedEventInstance<TValue> extends Event {
-  readonly newVal: TValue;
-  readonly oldVal: TValue;
+export interface ChangedEventInstance<T> extends Event {
+  readonly newVal: T;
+  readonly oldVal: T;
 }
 
-export interface DtoEventInstance<TValue> extends Event {
-  readonly value: TValue;
+export interface DtoEventInstance<T> extends Event {
+  readonly value: T;
 }

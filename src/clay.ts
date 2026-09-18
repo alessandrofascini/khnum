@@ -10,7 +10,11 @@ export class Clay extends HTMLElement {
     throw new KhnumError("Clay.render", "is not implemented");
   }
 
-  attributeChangedCallback(_name: string, _oldValue: string | null, _newValue: string | null): void {}
+  attributeChangedCallback(
+    _name: string,
+    _oldValue: string | null,
+    _newValue: string | null,
+  ): void {}
 
   connectedCallback(): void {
     this.render();
@@ -36,10 +40,11 @@ export class Clay extends HTMLElement {
   ): void {
     if (target) {
       target.addEventListener(type, listener, options);
+      this.beforeDisconnect(() => target.removeEventListener(type, listener, options));
     } else {
       super.addEventListener(type, listener, options);
+      this.beforeDisconnect(() => super.removeEventListener(type, listener, options));
     }
-    this.beforeDisconnect(() => this.removeEventListener(type, listener, options, target));
   }
 
   override removeEventListener(

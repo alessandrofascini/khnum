@@ -86,7 +86,11 @@ describe("Ennead", () => {
     const calls: Array<[string, string | null, string | null]> = [];
     class Child extends Shape<ChildProps>("ennead-fanout-child", ["label"]) {
       render(): void {}
-      override attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void {
+      override attributeChangedCallback(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null,
+      ): void {
         calls.push([name, oldValue, newValue]);
         super.attributeChangedCallback(name, oldValue, newValue);
       }
