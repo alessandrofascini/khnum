@@ -1,4 +1,4 @@
-import type { NamedEventCtor } from "./types";
+import type {NamedEventCtor} from "./types";
 
 /** Builds an `Event` subclass bound to a fixed event name. */
 export function EventDecorator(

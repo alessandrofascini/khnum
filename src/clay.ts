@@ -1,4 +1,4 @@
-import { KhnumError } from "./errors";
+import {KhnumError} from "./errors";
 
 type Cleanup = () => void;
 

@@ -1,7 +1,7 @@
 import fc from "fast-check";
-import { describe, expect, it } from "vitest";
-import { KhnumError } from "../../src/errors";
-import { AttributeName } from "../../src/internal/attribute-name";
+import {describe, expect, it} from "vitest";
+import {KhnumError} from "../../src/errors";
+import {AttributeName} from "../../src/internal/attribute-name";
 
 // Fuzz-first, per antirez's testing philosophy (https://oldblog.antirez.com/post/redis-new-test-engine.html):
 // most bugs here will show up as broken invariants under random input, not as a handful of
@@ -9,7 +9,7 @@ import { AttributeName } from "../../src/internal/attribute-name";
 
 // Element.setAttribute's actual validation rule (see MDN): non-empty, no ASCII whitespace,
 // NUL, "/", ">", or "=" anywhere.
-const validAttributeName = fc.string({ minLength: 1 }).filter((s) => !/[\0\s/>=]/.test(s));
+const validAttributeName = fc.string({minLength: 1}).filter((s) => !/[\0\s/>=]/.test(s));
 const validAttributeNameWithAlnum = validAttributeName.filter((s) => /[a-zA-Z0-9]/.test(s));
 
 describe("AttributeName validation", () => {
@@ -18,7 +18,7 @@ describe("AttributeName validation", () => {
       fc.property(validAttributeName, (raw) => {
         expect(() => new AttributeName(raw)).not.toThrow();
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 
@@ -60,7 +60,7 @@ describe("AttributeName.propName / .attributeName", () => {
         expect(typeof attr.propName).toBe("string");
         expect(typeof attr.attributeName).toBe("string");
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 
@@ -69,17 +69,17 @@ describe("AttributeName.propName / .attributeName", () => {
       fc.property(validAttributeName, (raw) => {
         expect(new AttributeName(raw).propName).not.toMatch(/[-\s]/);
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 
   it("propName starts with a non-uppercase character when it contains any alphanumeric", () => {
     fc.assert(
       fc.property(validAttributeNameWithAlnum, (raw) => {
-        const { propName } = new AttributeName(raw);
+        const {propName} = new AttributeName(raw);
         expect(propName[0]).toBe(propName[0].toLowerCase());
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 
@@ -88,7 +88,7 @@ describe("AttributeName.propName / .attributeName", () => {
       fc.property(validAttributeName, (raw) => {
         expect(new AttributeName(raw).attributeName).not.toMatch(/[A-Z\s]/);
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 
@@ -120,7 +120,7 @@ describe("AttributeName.propName / .attributeName", () => {
         expect(twice.propName).toBe(once.propName);
         expect(twice.attributeName).toBe(once.attributeName);
       }),
-      { numRuns: 500 },
+      {numRuns: 500},
     );
   });
 

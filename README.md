@@ -20,9 +20,9 @@ import {Shape, mold} from "khnum";
 type Props = {label: string | null};
 
 class HelloWorld extends Shape<Props>("hello-world", ["label"]) {
-    render(): void {
-        this.replaceChildren(mold("span", `Hello, ${this.label ?? "world"}!`));
-    }
+  render(): void {
+    this.replaceChildren(mold("span", `Hello, ${this.label ?? "world"}!`));
+  }
 }
 
 HelloWorld.fire(); // registers <hello-world> with customElements, once
@@ -49,12 +49,12 @@ Shapes `Clay` into a `Vessel`: a custom element class with attribute-backed reac
 type Props = {isActive: string | null; label: string | null};
 
 class Widget extends Shape<Props>("my-widget", ["is-active", "label"]) {
-    render(): void {
-        /* initial render */
-    }
-    renderIsActive(): void {
-        /* called on change, once connected */
-    }
+  render(): void {
+    /* initial render */
+  }
+  renderIsActive(): void {
+    /* called on change, once connected */
+  }
 }
 ```
 
@@ -83,10 +83,10 @@ Fluent builder that composes several `Vessel`s into one container custom element
 
 ```ts
 const Widget = new Ennead("my-container")
-    .use(ChildA, ChildB) // merges their attributeNames, registers them as dependencies
-    .attributeNames("extra-attr")
-    .dependencies(someOtherFireable)
-    .build();
+  .use(ChildA, ChildB) // merges their attributeNames, registers them as dependencies
+  .attributeNames("extra-attr")
+  .dependencies(someOtherFireable)
+  .build();
 
 Widget.fire();
 ```

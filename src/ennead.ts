@@ -1,5 +1,5 @@
-import { AttributeName } from "./internal/attribute-name";
-import { Shape, type AttributeMap, type Fireable, type Vessel } from "./shape";
+import {AttributeName} from "./internal/attribute-name";
+import {Shape, type AttributeMap, type Fireable, type Vessel} from "./shape";
 
 type AnyVessel = Vessel<AttributeMap>;
 

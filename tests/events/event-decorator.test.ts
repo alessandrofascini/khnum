@@ -1,15 +1,15 @@
 import fc from "fast-check";
-import { describe, expect, it } from "vitest";
-import { EventDecorator } from "../../src/events/event-decorator";
+import {describe, expect, it} from "vitest";
+import {EventDecorator} from "../../src/events/event-decorator";
 
 describe("EventDecorator", () => {
   it("eventName static getter always returns the name it was built with", () => {
     fc.assert(
-      fc.property(fc.string({ minLength: 1 }), (eventName) => {
+      fc.property(fc.string({minLength: 1}), (eventName) => {
         const NamedEvent = EventDecorator(eventName);
         expect(NamedEvent.eventName).toBe(eventName);
       }),
-      { numRuns: 200 },
+      {numRuns: 200},
     );
   });
 
@@ -21,7 +21,7 @@ describe("EventDecorator", () => {
   });
 
   it("uses defaultInit when constructed with no arguments", () => {
-    const Foo = EventDecorator("foo", { bubbles: true, cancelable: true, composed: true });
+    const Foo = EventDecorator("foo", {bubbles: true, cancelable: true, composed: true});
     const event = new Foo();
     expect(event.bubbles).toBe(true);
     expect(event.cancelable).toBe(true);
@@ -29,8 +29,8 @@ describe("EventDecorator", () => {
   });
 
   it("an explicit init fully replaces defaultInit rather than merging with it", () => {
-    const Foo = EventDecorator("foo", { bubbles: true, cancelable: true });
-    const event = new Foo({ bubbles: false });
+    const Foo = EventDecorator("foo", {bubbles: true, cancelable: true});
+    const event = new Foo({bubbles: false});
     expect(event.bubbles).toBe(false);
     // cancelable wasn't in the explicit init, so it falls back to Event's own default (false),
     // not defaultInit's cancelable: true -- constructor params replace, they don't merge.

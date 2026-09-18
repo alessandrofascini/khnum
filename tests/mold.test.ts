@@ -1,6 +1,6 @@
-import { describe, expect, it } from "vitest";
-import { KhnumError } from "../src/errors";
-import { mold } from "../src/mold";
+import {describe, expect, it} from "vitest";
+import {KhnumError} from "../src/errors";
+import {mold} from "../src/mold";
 
 class MoldTestElement extends HTMLElement {}
 customElements.define("mold-test-element", MoldTestElement);
@@ -29,19 +29,19 @@ describe("mold", () => {
   });
 
   it("applies a props object's attributes via setAttribute", () => {
-    const el = mold("div", { id: "x", "data-foo": "bar" });
+    const el = mold("div", {id: "x", "data-foo": "bar"});
     expect(el.getAttribute("id")).toBe("x");
     expect(el.getAttribute("data-foo")).toBe("bar");
   });
 
   it("stringifies non-string attribute values", () => {
-    const el = mold("div", { "data-count": 42, "data-flag": true });
+    const el = mold("div", {"data-count": 42, "data-flag": true});
     expect(el.getAttribute("data-count")).toBe("42");
     expect(el.getAttribute("data-flag")).toBe("true");
   });
 
   it("applies each style entry from props.style, skipping undefined values", () => {
-    const el = mold("div", { style: { color: "red", backgroundColor: undefined } });
+    const el = mold("div", {style: {color: "red", backgroundColor: undefined}});
     expect(el.style.color).toBe("red");
     expect(el.style.backgroundColor).toBe("");
   });
@@ -49,7 +49,7 @@ describe("mold", () => {
   it("appends rest-arg children in order, skipping null/undefined", () => {
     const a = document.createElement("span");
     const b = document.createElement("em");
-    const el = mold("div", { id: "x" }, a, null, "text", undefined, b);
+    const el = mold("div", {id: "x"}, a, null, "text", undefined, b);
     const nodes = Array.from(el.childNodes).map((n) => (n instanceof Element ? n : n.textContent));
     expect(nodes).toEqual([a, "text", b]);
   });

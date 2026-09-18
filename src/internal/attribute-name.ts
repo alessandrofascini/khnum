@@ -1,24 +1,24 @@
-import { KhnumError } from "../errors";
+import {KhnumError} from "../errors";
 
 // ECMAScript's `\s` (WhiteSpace + LineTerminator code points), checked by code point
 // instead of a regex.
 function isWhitespace(code: number): boolean {
   return (
-    code === 0x20 || // space
-    code === 0x09 || // tab
-    code === 0x0a || // \n
-    code === 0x0b || // \v
-    code === 0x0c || // \f
-    code === 0x0d || // \r
-    code === 0xa0 || // no-break space
-    code === 0x1680 ||
-    (code >= 0x2000 && code <= 0x200a) ||
-    code === 0x2028 ||
-    code === 0x2029 ||
-    code === 0x202f ||
-    code === 0x205f ||
-    code === 0x3000 ||
-    code === 0xfeff
+    code === 0x20 // space
+    || code === 0x09 // tab
+    || code === 0x0a // \n
+    || code === 0x0b // \v
+    || code === 0x0c // \f
+    || code === 0x0d // \r
+    || code === 0xa0 // no-break space
+    || code === 0x1680
+    || (code >= 0x2000 && code <= 0x200a)
+    || code === 0x2028
+    || code === 0x2029
+    || code === 0x202f
+    || code === 0x205f
+    || code === 0x3000
+    || code === 0xfeff
   );
 }
 

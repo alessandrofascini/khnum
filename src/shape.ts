@@ -1,6 +1,6 @@
-import { Clay } from "./clay";
-import { AttributeName } from "./internal/attribute-name";
-import { makeComponentId, toRenderMethodName } from "./utils";
+import {Clay} from "./clay";
+import {AttributeName} from "./internal/attribute-name";
+import {makeComponentId, toRenderMethodName} from "./utils";
 
 /** Something that must be fired (registered with `customElements`) before it can be used. */
 export interface Fireable {
@@ -11,7 +11,7 @@ export interface Fireable {
 export type AttributeMap = Record<string, string | null>;
 
 export type Vessel<TProps extends object = object> = Fireable & {
-  new (): Clay & { readonly componentId: string } & { [K in keyof TProps]: TProps[K] };
+  new (): Clay & {readonly componentId: string} & {[K in keyof TProps]: TProps[K]};
   readonly tagName: string;
   readonly observedAttributes: string[];
   readonly attributeNames: string[];

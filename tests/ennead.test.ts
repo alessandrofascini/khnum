@@ -1,13 +1,13 @@
-import { describe, expect, it, vi } from "vitest";
-import { Ennead } from "../src/ennead";
-import { Shape, type AttributeMap, type Vessel } from "../src/shape";
+import {describe, expect, it, vi} from "vitest";
+import {Ennead} from "../src/ennead";
+import {Shape, type AttributeMap, type Vessel} from "../src/shape";
 
 // A real component is authored with its own narrow Props type (methods like render() would
 // conflict with AttributeMap's blanket `[x: string]: string | null` index signature). .use()
 // is typed to take Vessel<AttributeMap> though, so passing a real component through it needs
 // the same type-erasing cast ennead.ts itself uses on its own Container (`as unknown as
 // AnyVessel`) -- there's no way around it while keeping a normally-typed component.
-type ChildProps = { label: string | null };
+type ChildProps = {label: string | null};
 
 function asAnyVessel(vessel: Vessel<ChildProps>): Vessel<AttributeMap> {
   return vessel as unknown as Vessel<AttributeMap>;
@@ -20,14 +20,14 @@ describe("Ennead", () => {
   });
 
   it("dedupes dependencies added via .dependencies(), firing each only once", () => {
-    const dep = { fire: vi.fn() };
+    const dep = {fire: vi.fn()};
     const Widget = new Ennead("ennead-deps").dependencies(dep, dep).build();
     Widget.fire();
     expect(dep.fire).toHaveBeenCalledTimes(1);
   });
 
   it("fire() is idempotent: a second call does not re-register or re-fire dependencies", () => {
-    const dep = { fire: vi.fn() };
+    const dep = {fire: vi.fn()};
     const Widget = new Ennead("ennead-fire-once").dependencies(dep).build();
     Widget.fire();
     expect(customElements.get("ennead-fire-once")).toBe(Widget);

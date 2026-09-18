@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { Clay } from "../src/clay";
-import { KhnumError } from "../src/errors";
+import {describe, expect, it, vi} from "vitest";
+import {Clay} from "../src/clay";
+import {KhnumError} from "../src/errors";
 
 class BareClay extends Clay {}
 customElements.define("bare-clay", BareClay);

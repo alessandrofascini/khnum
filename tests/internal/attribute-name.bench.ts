@@ -1,8 +1,8 @@
-import { describe, test } from "vitest";
-import { AttributeName } from "../../src/internal/attribute-name";
+import {describe, test} from "vitest";
+import {AttributeName} from "../../src/internal/attribute-name";
 
 describe("AttributeName", () => {
-  test("short vs long kebab-case input", async ({ bench }) => {
+  test("short vs long kebab-case input", async ({bench}) => {
     await bench.compare(
       bench("short: is-active", () => {
         new AttributeName("is-active");
@@ -13,7 +13,7 @@ describe("AttributeName", () => {
     );
   });
 
-  test("short vs long camelCase input", async ({ bench }) => {
+  test("short vs long camelCase input", async ({bench}) => {
     await bench.compare(
       bench("short: isActive", () => {
         new AttributeName("isActive");

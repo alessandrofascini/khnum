@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
-import { KhnumError } from "../src/errors";
-import { Shape } from "../src/shape";
+import {describe, expect, it, vi} from "vitest";
+import {KhnumError} from "../src/errors";
+import {Shape} from "../src/shape";
 
 describe("Shape - statics", () => {
   it("defaults to empty attributeNames/dependencies and exposes tagName/observedAttributes/attributeNames", () => {
@@ -34,7 +34,7 @@ describe("Shape - fire()", () => {
   });
 
   it("fires dependencies before registering, but only on the first (unregistered) call", () => {
-    const dep = { fire: vi.fn() };
+    const dep = {fire: vi.fn()};
     class Widget extends Shape("shape-fire-deps", [], [dep]) {
       render(): void {}
     }
@@ -68,7 +68,7 @@ describe("Shape - componentId", () => {
 });
 
 describe("Shape - reactive properties", () => {
-  type Props = { isActive: string | null; label: string | null };
+  type Props = {isActive: string | null; label: string | null};
 
   class Widget extends Shape<Props>("shape-props", ["is-active", "label"]) {
     renderCalls: string[] = [];
@@ -133,7 +133,7 @@ describe("Shape - reactive properties", () => {
 });
 
 describe("Shape - attributeChangedCallback", () => {
-  type Props = { isActive: string | null };
+  type Props = {isActive: string | null};
 
   class Widget extends Shape<Props>("shape-attr-changed", ["is-active"]) {
     render(): void {}

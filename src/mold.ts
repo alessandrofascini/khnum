@@ -1,7 +1,7 @@
-import { KhnumError } from "./errors";
+import {KhnumError} from "./errors";
 
 export type MoldStyle = Partial<Record<keyof CSSStyleDeclaration, string | undefined>>;
-export type MoldAttributes = Record<string, unknown> & { style?: MoldStyle };
+export type MoldAttributes = Record<string, unknown> & {style?: MoldStyle};
 export type MoldChild = Node | string | null | undefined;
 
 type MoldTarget = string | (new () => HTMLElement);

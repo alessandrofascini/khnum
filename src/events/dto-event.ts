@@ -1,5 +1,5 @@
-import { EventDecorator } from "./event-decorator";
-import type { DtoEventInstance, NamedEventCtor } from "./types";
+import {EventDecorator} from "./event-decorator";
+import type {DtoEventInstance, NamedEventCtor} from "./types";
 
 /** Builds an `Event` subclass carrying a single payload value. */
 export function DtoEvent<TValue = unknown>(

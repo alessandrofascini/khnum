@@ -1,5 +1,5 @@
-import { EventDecorator } from "./event-decorator";
-import type { ChangedEventInstance, NamedEventCtor } from "./types";
+import {EventDecorator} from "./event-decorator";
+import type {ChangedEventInstance, NamedEventCtor} from "./types";
 
 /** Builds an `Event` subclass carrying the old/new value of a changed property or attribute. */
 export function ChangedEvent<TValue = unknown>(
