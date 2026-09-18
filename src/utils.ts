@@ -1,5 +1,5 @@
 export function toRenderMethodName(propName: string): string {
-  return `render${propName.charAt(0).toUpperCase()}${propName.slice(1)}`;
+    return `render${propName.charAt(0).toUpperCase()}${propName.slice(1)}`;
 }
 
 // Same 12-byte layout as MongoDB's ObjectId: a 4-byte seconds-since-epoch timestamp, a 5-byte
@@ -11,28 +11,20 @@ const SESSION_SEED = crypto.getRandomValues(new Uint8Array(8));
 const SESSION_ID = SESSION_SEED.subarray(0, 5);
 let counter = (SESSION_SEED[5] << 16) | (SESSION_SEED[6] << 8) | SESSION_SEED[7];
 
-// Precomputed once: every byte value's 2-digit hex string, so encoding an id is a plain
-// indexed-read loop instead of a per-byte toString(16) + padStart call.
-const HEX_BYTES: string[] = new Array(256);
-for (let i = 0; i < 256; i++) {
-  HEX_BYTES[i] = i.toString(16).padStart(2, "0");
-}
+// Precomputed once: the id's middle 5 bytes never change for the life of the session, so
+// there's no need to re-encode them (or build an intermediate byte array) on every call.
+let sessionIdHex = "";
+for (const byte of SESSION_ID) sessionIdHex += byte.toString(16).padStart(2, "0");
 
 export function makeComponentId(): string {
-  counter = (counter + 1) & 0xffffff;
-  const timestamp = Math.floor(Date.now() / 1000);
+    counter = (counter + 1) & 0xffffff;
+    // >>> 0 matches the old per-byte extraction's implicit ToUint32 truncation for timestamps
+    // past 2106 (2**32 seconds since epoch).
+    const timestamp = Math.floor(Date.now() / 1000) >>> 0;
 
-  const bytes = new Uint8Array(12);
-  bytes[0] = (timestamp >>> 24) & 0xff;
-  bytes[1] = (timestamp >>> 16) & 0xff;
-  bytes[2] = (timestamp >>> 8) & 0xff;
-  bytes[3] = timestamp & 0xff;
-  bytes.set(SESSION_ID, 4);
-  bytes[9] = (counter >>> 16) & 0xff;
-  bytes[10] = (counter >>> 8) & 0xff;
-  bytes[11] = counter & 0xff;
-
-  let id = "";
-  for (let i = 0; i < 12; i++) id += HEX_BYTES[bytes[i]];
-  return id;
+    return (
+        timestamp.toString(16).padStart(8, "0")
+        + sessionIdHex
+        + counter.toString(16).padStart(6, "0")
+    );
 }
