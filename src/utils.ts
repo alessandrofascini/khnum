@@ -11,6 +11,13 @@ const SESSION_SEED = crypto.getRandomValues(new Uint8Array(8));
 const SESSION_ID = SESSION_SEED.subarray(0, 5);
 let counter = (SESSION_SEED[5] << 16) | (SESSION_SEED[6] << 8) | SESSION_SEED[7];
 
+// Precomputed once: every byte value's 2-digit hex string, so encoding an id is a plain
+// indexed-read loop instead of a per-byte toString(16) + padStart call.
+const HEX_BYTES: string[] = new Array(256);
+for (let i = 0; i < 256; i++) {
+  HEX_BYTES[i] = i.toString(16).padStart(2, "0");
+}
+
 export function makeComponentId(): string {
   counter = (counter + 1) & 0xffffff;
   const timestamp = Math.floor(Date.now() / 1000);
@@ -25,5 +32,7 @@ export function makeComponentId(): string {
   bytes[10] = (counter >>> 8) & 0xff;
   bytes[11] = counter & 0xff;
 
-  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+  let id = "";
+  for (let i = 0; i < 12; i++) id += HEX_BYTES[bytes[i]];
+  return id;
 }

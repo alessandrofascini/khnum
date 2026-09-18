@@ -7,14 +7,16 @@ export type MoldChild = Node | string | null | undefined;
 type MoldTarget = string | (new () => HTMLElement);
 
 function applyAttributes(el: HTMLElement, props: MoldAttributes): void {
-  const { style, ...attrs } = props;
+  for (const name in props) {
+    if (name === "style") continue;
+    el.setAttribute(name, String(props[name]));
+  }
+  const style = props.style;
   if (style) {
-    for (const [prop, value] of Object.entries(style)) {
+    for (const prop in style) {
+      const value = (style as Record<string, string | undefined>)[prop];
       if (value !== undefined) el.style.setProperty(prop, value);
     }
-  }
-  for (const [name, value] of Object.entries(attrs)) {
-    el.setAttribute(name, String(value));
   }
 }
 
