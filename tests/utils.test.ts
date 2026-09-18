@@ -1,6 +1,6 @@
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
-import { randomToken, toRenderMethodName } from "../src/utils";
+import { makeComponentId, toRenderMethodName } from "../src/utils";
 
 // Fuzz-first, per antirez's testing philosophy (https://oldblog.antirez.com/post/redis-new-test-engine.html):
 // most bugs in these pure transforms will show up as broken invariants under random input,
@@ -34,31 +34,21 @@ describe("toRenderMethodName", () => {
   });
 });
 
-describe("randomToken", () => {
-  it("returns a string of exactly the requested length, for any non-negative length", () => {
-    fc.assert(
-      fc.property(fc.integer({ min: 0, max: 200 }), (length) => {
-        expect(randomToken(length)).toHaveLength(length);
-      }),
-      { numRuns: 200 },
-    );
+describe("makeComponentId", () => {
+  it("always returns 24 lowercase hex characters", () => {
+    for (let i = 0; i < 500; i++) {
+      expect(makeComponentId()).toMatch(/^[0-9a-f]{24}$/);
+    }
   });
 
-  it("only ever produces alphanumeric characters", () => {
-    fc.assert(
-      fc.property(fc.integer({ min: 1, max: 200 }), (length) => {
-        expect(randomToken(length)).toMatch(/^[0-9a-zA-Z]*$/);
-      }),
-      { numRuns: 200 },
-    );
+  it("never produces the same id twice within a session", () => {
+    const ids = Array.from({ length: 500 }, () => makeComponentId());
+    expect(new Set(ids).size).toBe(ids.length);
   });
 
-  it("degrades to an empty string for a negative length", () => {
-    expect(randomToken(-5)).toBe("");
-  });
-
-  it("does not produce the same token every time (statistical, not exhaustive)", () => {
-    const tokens = Array.from({ length: 50 }, () => randomToken());
-    expect(new Set(tokens).size).toBeGreaterThan(1);
+  it("is monotonically increasing (timestamp + counter never go backwards)", () => {
+    const ids = Array.from({ length: 500 }, () => makeComponentId());
+    const sorted = [...ids].sort();
+    expect(ids).toEqual(sorted);
   });
 });

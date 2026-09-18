@@ -4,7 +4,7 @@ type Cleanup = () => void;
 
 /** The raw, unformed base: a plain custom element with lifecycle hooks and leak-safe listeners. */
 export class Clay extends HTMLElement {
-  #cleanups: Cleanup[] = [];
+  #cleanups: Cleanup[] | undefined;
 
   render(): void {
     throw new KhnumError("Clay.render", "is not implemented");
@@ -17,12 +17,15 @@ export class Clay extends HTMLElement {
   }
 
   disconnectedCallback(): void {
-    for (const cleanup of this.#cleanups) cleanup();
+    if (!this.#cleanups) return;
+    for (const cleanup of this.#cleanups) {
+      cleanup();
+    }
     this.#cleanups.length = 0;
   }
 
   beforeDisconnect(cleanup: Cleanup): void {
-    this.#cleanups.push(cleanup);
+    (this.#cleanups ??= []).push(cleanup);
   }
 
   override addEventListener(

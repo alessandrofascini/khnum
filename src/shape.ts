@@ -1,6 +1,6 @@
 import { Clay } from "./clay";
 import { AttributeName } from "./internal/attribute-name";
-import { randomToken, toRenderMethodName } from "./utils";
+import { makeComponentId, toRenderMethodName } from "./utils";
 
 /** Something that must be fired (registered with `customElements`) before it can be used. */
 export interface Fireable {
@@ -28,22 +28,23 @@ export function Shape<TProps extends object = object>(
   tagName: string,
   attributeNames: readonly string[] = [],
   dependencies: readonly Fireable[] = [],
-): Vessel<TProps> {
-  const attrs = attributeNames.map((name) => new AttributeName(name));
-  const propNames = attrs.map((attr) => attr.propName);
-  const htmlNames = attrs.map((attr) => attr.attributeName);
-  const propNameByAttrName = new Map(attrs.map((attr) => [attr.attributeName, attr.propName]));
-  const idByInstance = new WeakMap<Clay, string>();
-
+): Vessel<TProps> {  
+  const propNames = new Array(attributeNames.length);
+  const htmlNames = new Array(attributeNames.length);
+  const propNameByAttrName = new Map<string, string>();
+ 
+  attributeNames.forEach((raw, index) => {
+    const attr = new AttributeName(raw);
+    propNames[index] = attr.propName;
+    htmlNames[index] = attr.attributeName;
+    propNameByAttrName.set(attr.attributeName, attr.propName);
+  });
+  
   class Base extends Clay {
+    #componentId: string | undefined;
+
     get componentId(): string {
-      const instance = idByInstance.get(this);
-      if (instance) {
-        return instance;
-      }
-      const id = `${tagName}@${randomToken()}`;
-      idByInstance.set(this, id);
-      return id;
+      return (this.#componentId ??= `${tagName}@${makeComponentId()}`);
     }
 
     override attributeChangedCallback(name: string, _oldValue: string | null, newValue: string | null): void {
