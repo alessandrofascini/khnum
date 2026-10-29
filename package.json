@@ -1,7 +1,21 @@
 {
   "name": "khnum",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "A lightweight library for creating web components easily.",
+  "keywords": [
+    "web-components",
+    "custom-elements",
+    "hyperscript",
+    "dom"
+  ],
+  "homepage": "https://github.com/alessandrofascini/khnum#readme",
+  "bugs": {
+    "url": "https://github.com/alessandrofascini/khnum/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alessandrofascini/khnum.git"
+  },
   "type": "module",
   "main": "./dist/khnum.umd.cjs",
   "module": "./dist/khnum.js",
@@ -19,6 +33,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
+    "prepublishOnly": "npm run typecheck && npm run test && npm run build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",

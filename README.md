@@ -1,10 +1,10 @@
-# khnum
+<img src="https://raw.githubusercontent.com/alessandrofascini/khnum/main/assets/logo.svg" alt="khnum" width="200" style="display: block; margin: 0 auto;">
 
 A lightweight library for creating web components easily.
 
 ## Status
 
-🚧 Early development. The API may still change; not yet published to npm.
+Version 1.0.0, available on npm as `khnum`.
 
 ## Install
 
@@ -21,7 +21,8 @@ type Props = {label: string | null};
 
 class HelloWorld extends Shape<Props>("hello-world", ["label"]) {
   render(): void {
-    this.replaceChildren(mold("span", `Hello, ${this.label ?? "world"}!`));
+    const children = mold("span", `Hello, ${this.label ?? "world"}!`);
+    this.replaceChildren(children);
   }
 }
 
